@@ -1,0 +1,6 @@
+<div class="fallback-content">
+  <p>Content of type "{{ node.type }}" could not be rendered.</p>
+  {% if node.content %}
+    <pre>{{ node.content|tojson(indent=2) }}</pre>
+  {% endif %}
+</div>

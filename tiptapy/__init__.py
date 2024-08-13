@@ -3,6 +3,7 @@ import os
 import sys
 from html import escape
 from typing import Dict
+import logging
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -74,9 +75,20 @@ class BaseDoc:
     # and guest views
 
     def __init__(self, config, focus_tag):
+        self.logger = logging.getLogger(__name__)
         environ = init_env(self.templates_path, config, focus_tag)
+        
+        # Add the custom filter
+        environ.filters['template_exists'] = self.template_exists
+        
         self.t = environ.get_template(f"{self.doc_type}.html")
         self.t.environment.globals["locked"] = self.locked
+
+    def template_exists(self, template_name):
+        exists = template_name in self.t.environment.list_templates()
+        if not exists:
+            self.logger.warning(f"Template not found: {template_name}")
+        return exists
 
     def render(self, in_data):
         in_data = in_data if isinstance(in_data, dict) else json.loads(in_data)

@@ -1,0 +1,11 @@
+<tr>
+{%- for cell in node.content -%}
+  {%- with template=cell.type + '.html', node=cell -%}
+    {%- if template|template_exists -%}
+      {%- include template -%}
+    {%- else -%}
+      {%- include 'fallback.html' -%}
+    {%- endif -%}
+  {%- endwith -%}
+{%- endfor -%}
+</tr>

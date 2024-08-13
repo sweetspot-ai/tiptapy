@@ -1,26 +1,88 @@
 <table>
-    {%- for item in node.content -%}
+    {%- for row in node.content -%}
         <tr>
-            {%- for cell in item.content -%}
+            {%- for cell in row.content -%}
                 {%- if cell.type == 'tableHeader' -%}
-                    <th colspan="{{ cell.attrs.colspan }}" rowspan="{{ cell.attrs.rowspan }}">
-                        {%- for para in cell.content -%}
-                            {%- for text in para.content -%}
-                                {%- with template=text.type + '.html', node=text -%}
-                                    {%- include template -%}
-                                {%- endwith -%}
+                    <th{% if cell.attrs %} colspan="{{ cell.attrs.colspan }}" rowspan="{{ cell.attrs.rowspan }}"{% endif %}>
+                {%- elif cell.type == 'tableCell' -%}
+                    <td{% if cell.attrs %} colspan="{{ cell.attrs.colspan }}" rowspan="{{ cell.attrs.rowspan }}"{% endif %}>
+                {%- endif -%}
+                {%- for item in cell.content -%}
+                    {%- if item.type == 'paragraph' -%}
+                        <p>
+                            {%- for text in item.content -%}
+                                {%- if text.type == 'text' -%}
+                                    {{ text.text }}
+                                {%- else -%}
+                                    {%- with template=text.type + '.html', node=text -%}
+                                        {%- if template|template_exists -%}
+                                            {%- include template -%}
+                                        {%- else -%}
+                                            {%- include 'fallback.html' -%}
+                                        {%- endif -%}
+                                    {%- endwith -%}
+                                {%- endif -%}
                             {%- endfor -%}
-                        {%- endfor -%}
+                        </p>
+                    {%- elif item.type == 'table' -%}
+                        <table>
+                            {%- for nested_row in item.content -%}
+                                <tr>
+                                    {%- for nested_cell in nested_row.content -%}
+                                        {%- if nested_cell.type == 'tableHeader' -%}
+                                            <th{% if nested_cell.attrs %} colspan="{{ nested_cell.attrs.colspan }}" rowspan="{{ nested_cell.attrs.rowspan }}"{% endif %}>
+                                        {%- elif nested_cell.type == 'tableCell' -%}
+                                            <td{% if nested_cell.attrs %} colspan="{{ nested_cell.attrs.colspan }}" rowspan="{{ nested_cell.attrs.rowspan }}"{% endif %}>
+                                        {%- endif -%}
+                                        {%- for nested_item in nested_cell.content -%}
+                                            {%- if nested_item.type == 'paragraph' -%}
+                                                <p>
+                                                    {%- for nested_text in nested_item.content -%}
+                                                        {%- if nested_text.type == 'text' -%}
+                                                            {{ nested_text.text }}
+                                                        {%- else -%}
+                                                            {%- with template=nested_text.type + '.html', node=nested_text -%}
+                                                                {%- if template|template_exists -%}
+                                                                    {%- include template -%}
+                                                                {%- else -%}
+                                                                    {%- include 'fallback.html' -%}
+                                                                {%- endif -%}
+                                                            {%- endwith -%}
+                                                        {%- endif -%}
+                                                    {%- endfor -%}
+                                                </p>
+                                            {%- else -%}
+                                                {%- with template=nested_item.type + '.html', node=nested_item -%}
+                                                    {%- if template|template_exists -%}
+                                                        {%- include template -%}
+                                                    {%- else -%}
+                                                        {%- include 'fallback.html' -%}
+                                                    {%- endif -%}
+                                                {%- endwith -%}
+                                            {%- endif -%}
+                                        {%- endfor -%}
+                                        {%- if nested_cell.type == 'tableHeader' -%}
+                                            </th>
+                                        {%- elif nested_cell.type == 'tableCell' -%}
+                                            </td>
+                                        {%- endif -%}
+                                    {%- endfor -%}
+                                </tr>
+                            {%- endfor -%}
+                        </table>
+                    {%- else -%}
+                        {%- with template=item.type + '.html', node=item -%}
+                            {%- if template|template_exists -%}
+                                {%- include template -%}
+                            {%- else -%}
+                                {%- include 'fallback.html' -%}
+                            {%- endif -%}
+                        {%- endwith -%}
+                    {%- endif -%}
+                {%- endfor -%}
+                {%- if cell.type == 'tableHeader' -%}
                     </th>
                 {%- elif cell.type == 'tableCell' -%}
-                    <td colspan="{{ cell.attrs.colspan }}" rowspan="{{ cell.attrs.rowspan }}">
-                        {%- for para in cell.content -%}
-                            {%- for text in para.content -%}
-                                {%- with template=text.type + '.html', node=text -%}
-                                    {%- include template -%}
-                                {%- endwith -%}
-                            {%- endfor -%}
-                        {%- endfor -%}
                     </td>
                 {%- endif -%}
             {%- endfor -%}
