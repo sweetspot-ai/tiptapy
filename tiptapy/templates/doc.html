@@ -3,7 +3,11 @@
 {%- endif -%}
 {%- for item in node.content -%}
   {%- with template=item.type + '.html', node=item -%}
-    {%- include template -%}
+    {%- try -%}
+      {%- include template -%}
+    {%- except TemplateNotFound -%}
+      {{ item | tojson }}
+    {%- endtry -%}
   {%- endwith -%}
 {%- endfor -%}
 {%- if node.attrs and node.attrs.data -%}
