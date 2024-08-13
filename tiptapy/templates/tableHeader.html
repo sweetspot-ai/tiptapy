@@ -1,0 +1,11 @@
+<th{% if node.attrs %} colspan="{{ node.attrs.colspan }}" rowspan="{{ node.attrs.rowspan }}"{% endif %}>
+{%- for item in node.content -%}
+  {%- with template=item.type + '.html', node=item -%}
+    {%- if template|template_exists -%}
+      {%- include template -%}
+    {%- else -%}
+      {%- include 'fallback.html' -%}
+    {%- endif -%}
+  {%- endwith -%}
+{%- endfor -%}
+</th>
