@@ -25,10 +25,7 @@ def build_link_handler(config):
         if attrs:
             url = attrs.get("href", "").strip()
             link = urlparse(url)
-            if not (
-                link.netloc == config.DOMAIN
-                or link.netloc.endswith(f".{config.DOMAIN}")
-            ):
+            if not (link.netloc == config.DOMAIN or link.netloc.endswith(f".{config.DOMAIN}")):
                 attrs["target"] = "_blank"
                 attrs["rel"] = "noopener nofollow"
             retval = " ".join(f'{k}="{v}"' for k, v in attrs.items() if v is not None)
@@ -38,18 +35,12 @@ def build_link_handler(config):
 
 
 def get_audio_player_block():
-    audio_player_block = pkgutil.get_data(
-        __name__, "templates/stack-audio-player.html"
-    ).decode()
+    audio_player_block = pkgutil.get_data(__name__, "templates/stack-audio-player.html").decode()
     return audio_player_block
 
 
 def get_doc_block(ext, fname, size, src):
-    document_block = pkgutil.get_data(
-        __name__, "templates/stack-document.html"
-    ).decode()
+    document_block = pkgutil.get_data(__name__, "templates/stack-document.html").decode()
     document = Template(document_block)
-    html = document.substitute(
-        fileformat=ext[:4], filename=fname, filesize=size, filesrc=src
-    )
+    html = document.substitute(fileformat=ext[:4], filename=fname, filesize=size, filesrc=src)
     return html

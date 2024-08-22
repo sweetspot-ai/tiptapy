@@ -4,7 +4,7 @@ setup(
     name="tiptapy",
     version="0.18.1",  # TODO: why bumpversion works only for single quotes?
     url="https://github.com/scrolltech/tiptapy",
-    description="Library that generates HTML output from JSON export of tiptap editor",
+    description=("Library that generates HTML output from JSON export of tiptap editor"),
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     packages=find_packages(),

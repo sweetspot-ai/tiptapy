@@ -1,19 +1,14 @@
 import json
+import logging
 import os
 import sys
 from html import escape
 from typing import Dict
-import logging
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from .image import url2mime
-from .macros import (
-    build_link_handler,
-    get_audio_player_block,
-    get_doc_block,
-    make_img_src,
-)
+from .macros import build_link_handler, get_audio_player_block, get_doc_block, make_img_src
 
 __version__ = "0.18.1"
 
@@ -52,10 +47,7 @@ def escape_values_recursive(node):
     skip_key = "html"
 
     if isinstance(node, dict):
-        return {
-            escape(k): v if k == skip_key else escape_values_recursive(v)
-            for k, v in node.items()
-        }
+        return {escape(k): v if k == skip_key else escape_values_recursive(v) for k, v in node.items()}
     elif isinstance(node, list):
         return [escape_values_recursive(x) for x in node]
     elif isinstance(node, str):
@@ -74,13 +66,13 @@ class BaseDoc:
     # Useful in case where code is referring same template for both protected
     # and guest views
 
-    def __init__(self, config, focus_tag):
+    def __init__(self, config, focus_tag: str = ""):
         self.logger = logging.getLogger(__name__)
         environ = init_env(self.templates_path, config, focus_tag)
-        
+
         # Add the custom filter
-        environ.filters['template_exists'] = self.template_exists
-        
+        environ.filters["template_exists"] = self.template_exists
+
         self.t = environ.get_template(f"{self.doc_type}.html")
         self.t.environment.globals["locked"] = self.locked
 
@@ -94,4 +86,8 @@ class BaseDoc:
         in_data = in_data if isinstance(in_data, dict) else json.loads(in_data)
         node = in_data if isinstance(in_data, dict) else json.loads(in_data)
         node = escape_values_recursive(node)
-        return self.t.render(node=node)
+        try:
+            return self.t.render(node=node)
+        except Exception as e:
+            self.logger.error(f"Error rendering template: {e}")
+            return json.dumps(node)
